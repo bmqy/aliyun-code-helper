@@ -122,10 +122,22 @@
 			let data = {
 				group: GAStr.split(':')[0],
 				artifact: GAStr.split(':')[1],
-				version: $ver.innerText,
+				version: _this.versionFormat($ver.innerText),
 			};
 			_this.setStorage(data);
 		},
+
+        versionFormat: function (version) {
+            if(!version) return version;
+
+            let arr = version.split('.');
+            arr.forEach((e, i) => {
+                if(i >= (arr.length-1)){
+                    arr[arr.length-1] = ++e;
+                }
+            });
+            return arr.join('.');
+        },
 
 		/**
 		 * 监听制品上传表单加载完成
