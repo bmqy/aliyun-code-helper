@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         阿里云云效增强
 // @namespace    http://bmqy.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  阿里云效平台功能增强辅助脚本
 // @author       bmqy
 // @match        https://packages.aliyun.com/repos/*
