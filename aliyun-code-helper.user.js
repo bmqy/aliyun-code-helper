@@ -95,7 +95,7 @@
 					} else {
 						// 取消当前选中则检测列表中第一个选中的行，如果有更新存储值
 						setTimeout(() => {
-							$checkboxList = document.querySelectorAll(
+							let $checkboxList = document.querySelectorAll(
 								'.next-table-row.selected'
 							);
 							if ($checkboxList.length == 0) {
