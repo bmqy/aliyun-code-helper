@@ -8,3 +8,8 @@
 ## 功能
 * 制品仓库上传增强
   - 先选中一个制品，然后点上传文件，可自动填写GAV信息
+
+## 联系作者
+[@chanel](https://t.me/tcbmqy)
+
+[@group](https://t.me/tgbmqy)
