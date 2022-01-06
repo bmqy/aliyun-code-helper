@@ -20,7 +20,6 @@
 			this.delStorage();
 			this.checkboxOnClick();
 			this.pkgUploadFormOnAddEvent();
-            alert('12111111111111');
 		},
 
 		// 脚本存储数据key
