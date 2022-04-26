@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         阿里云云效增强
 // @namespace    http://bmqy.net/
-// @version      1.0.3
+// @version      1.0.4
 // @description  阿里云效平台功能增强辅助脚本
 // @author       bmqy
 // @match        https://packages.aliyun.com/*
@@ -130,13 +130,20 @@
         versionFormat: function (version) {
             if(!version) return version;
 
-            let arr = version.split('.');
-            arr.forEach((e, i) => {
-                if(i >= (arr.length-1)){
-                    arr[arr.length-1] = ++e;
+			// 兼容-SNAPSHOT版本
+            let arr = version.split('-');
+            let numberArr = arr[0].split('.');
+            numberArr.forEach((e, i) => {
+                if(i >= (numberArr.length-1)){
+                    numberArr[numberArr.length-1] = ++e;
                 }
             });
-            return arr.join('.');
+			let out = numberArr.join('.');
+			if(arr[1]){
+				out += '-SNAPSHOT';
+			}
+			
+            return out;
         },
 
 		/**
