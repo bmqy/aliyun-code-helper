@@ -11,7 +11,6 @@ export default defineConfig({
         namespace: 'http://bmqy.net/',
         match: [
             'https://packages.aliyun.com/*',
-            'https://signin.aliyun.com/bjguolian.onaliyun.com/login.htm*'
         ],
       }
     }),

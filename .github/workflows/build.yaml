@@ -42,11 +42,3 @@ jobs:
               uses: ad-m/github-push-action@master
               with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Notify workflow status to telegram
-              uses: yakuhzi/notify-workflow@v2
-              if: always()
-              with:
-                  chat_id: ${{ secrets.TELEGRAM_TO }}
-                  bot_token: ${{ secrets.TELEGRAM_TOKEN }}
-                  job_status: ${{ job.status }}
