@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         aliyun-code-helper
+// @name         阿里云云效增强
 // @namespace    http://bmqy.net/
 // @version      1.0.4
 // @author       bmqy
