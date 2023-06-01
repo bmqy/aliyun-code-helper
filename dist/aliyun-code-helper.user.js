@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         aliyun-code-helper
 // @namespace    http://bmqy.net/
-// @version      1.0.3
+// @version      1.0.4
 // @author       bmqy
 // @description  阿里云云效辅助脚本
 // @license      ISC
@@ -121,13 +121,18 @@
       versionFormat: function(version) {
         if (!version)
           return version;
-        let arr = version.split(".");
-        arr.forEach((e, i) => {
-          if (i >= arr.length - 1) {
-            arr[arr.length - 1] = ++e;
+        let arr = version.split("-");
+        let numberArr = arr[0].split(".");
+        numberArr.forEach((e, i) => {
+          if (i >= numberArr.length - 1) {
+            numberArr[numberArr.length - 1] = ++e;
           }
         });
-        return arr.join(".");
+        let out = numberArr.join(".");
+        if (arr[1]) {
+          out += "-SNAPSHOT";
+        }
+        return out;
       },
       /**
        * 监听制品上传表单加载完成
