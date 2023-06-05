@@ -7,9 +7,10 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 		init: function () {
 			this.delStorage();
 			this.checkboxOnClick();
-			this.pkgUploadFormOnAddEvent();
+			this.onAddElementEventDoFunction('next-dialog-body', this.pkgUploadFormUpdate.bind(this));
 		},
 
+        // ===================================================================================== 方法
 		// 脚本存储数据key
 		sotrageKey: 'BmqyAliyunPackage',
 
@@ -37,10 +38,12 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 			GM_deleteValue(this.sotrageKey);
 		},
 
+        // ===================================================================================== 制品
 		/**
 		 * 更新制品上传表单
 		 */
 		pkgUploadFormUpdate: function () {
+            if(location.href.indexOf('https://packages.aliyun.com')==-1) return false;
 			let _this = this;
 			let $groupId = document.querySelector('#groupId');
 			let $artifactId = document.querySelector('#artifactId');
@@ -130,25 +133,21 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 			if(arr[1]){
 				out += '-SNAPSHOT';
 			}
-			
+
             return out;
         },
 
 		/**
-		 * 监听制品上传表单加载完成
+		 * 监听指定元素加载完成，执行函数
 		 */
-		pkgUploadFormOnAddEvent: function () {
+		onAddElementEventDoFunction: function (elementClassName, func) {
 			let _this = this;
 			let mos = new MutationObserver(function (mutations, observer) {
 				for (const mutation in mutations) {
 					if (Object.hasOwnProperty.call(mutations, mutation)) {
 						const element = mutations[mutation];
-						if (
-							element.target.classList.contains(
-								'next-dialog-body'
-							)
-						) {
-							_this.pkgUploadFormUpdate();
+						if (element.target.classList.contains(elementClassName)) {
+							func();
 						}
 					}
 				}
