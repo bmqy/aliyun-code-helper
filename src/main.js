@@ -8,6 +8,7 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 			this.delStorage();
 			this.checkboxOnClick();
 			this.onAddElementEventDoFunction('next-dialog-body', this.pkgUploadFormUpdate.bind(this));
+			this.onAddElementEventDoFunction('next-btn', this.quickMFALogin.bind(this));
 		},
 
         // ===================================================================================== 方法
@@ -185,6 +186,21 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 
 			return null;
 		},
+
+        // ===================================================================================== 登录
+        // MFA快速登录
+        quickMFALogin: function(){
+            if(location.href.indexOf('signin.aliyun.com')==-1) return false;
+
+            let $btnSubmit = document.querySelector('.next-btn[type=submit]');
+            if($btnSubmit.innerHTML.indexOf('提交验证')==-1) return false;
+
+            let $nextMessageError = document.querySelector('.next-message-error');
+
+            if(!$btnSubmit.hasAttribute('disabled') && !$nextMessageError){
+                $btnSubmit.click();
+            }
+        }
 	};
 	app.init();
 })();
