@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         阿里云云效增强
 // @namespace    http://bmqy.net/
-// @version      1.0.5
+// @version      1.0.6
 // @author       bmqy
 // @description  阿里云云效辅助脚本
 // @license      ISC
@@ -25,6 +25,7 @@
         this.delStorage();
         this.checkboxOnClick();
         this.onAddElementEventDoFunction("next-dialog-body", this.pkgUploadFormUpdate.bind(this));
+        this.onAddElementEventDoFunction("next-btn", this.quickMFALogin.bind(this));
       },
       // ===================================================================================== 方法
       // 脚本存储数据key
@@ -177,6 +178,19 @@
           _this.getParent(element, className);
         }
         return null;
+      },
+      // ===================================================================================== 登录
+      // MFA快速登录
+      quickMFALogin: function() {
+        if (location.href.indexOf("signin.aliyun.com") == -1)
+          return false;
+        let $btnSubmit = document.querySelector(".next-btn[type=submit]");
+        if ($btnSubmit.innerHTML.indexOf("提交验证") == -1)
+          return false;
+        let $nextMessageError = document.querySelector(".next-message-error");
+        if (!$btnSubmit.hasAttribute("disabled") && !$nextMessageError) {
+          $btnSubmit.click();
+        }
       }
     };
     app.init();
