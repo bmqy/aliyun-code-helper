@@ -196,8 +196,9 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
             if($btnSubmit.innerHTML.indexOf('提交验证')==-1) return false;
 
             let $nextMessageError = document.querySelector('.next-message-error');
+            let $nextLoadingTip = document.querySelector('.next-loading-tip');
 
-            if(!$btnSubmit.hasAttribute('disabled') && !$nextMessageError){
+            if(!$btnSubmit.hasAttribute('disabled') && !$nextMessageError && !$nextLoadingTip){
                 $btnSubmit.click();
             }
         }
