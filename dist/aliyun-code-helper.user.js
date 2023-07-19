@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         阿里云云效增强
 // @namespace    http://bmqy.net/
-// @version      1.0.6
+// @version      1.0.7
 // @author       bmqy
 // @description  阿里云云效辅助脚本
 // @license      ISC
@@ -188,7 +188,8 @@
         if ($btnSubmit.innerHTML.indexOf("提交验证") == -1)
           return false;
         let $nextMessageError = document.querySelector(".next-message-error");
-        if (!$btnSubmit.hasAttribute("disabled") && !$nextMessageError) {
+        let $nextLoadingTip = document.querySelector(".next-loading-tip");
+        if (!$btnSubmit.hasAttribute("disabled") && !$nextMessageError && !$nextLoadingTip) {
           $btnSubmit.click();
         }
       }
