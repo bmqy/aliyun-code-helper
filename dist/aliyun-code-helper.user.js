@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         阿里云云效增强
 // @namespace    http://bmqy.net/
-// @version      1.0.8
+// @version      1.1.0
 // @author       bmqy
 // @description  阿里云云效辅助脚本
 // @license      ISC
@@ -17,40 +17,13 @@
 (function () {
   'use strict';
 
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
   (function() {
     const app = {
+      currentPackage: null,
       init: function() {
-        this.delStorage();
-        this.checkboxOnClick();
+        this.onAddElementEventDoFunction("next-table-row", this.onTableRowClick.bind(this));
         this.onAddElementEventDoFunction("next-dialog-body", this.pkgUploadFormUpdate.bind(this));
         this.onAddElementEventDoFunction("next-btn", this.quickMFALogin.bind(this));
-      },
-      // ===================================================================================== 方法
-      // 脚本存储数据key
-      sotrageKey: "BmqyAliyunPackage",
-      /**
-       * 获取脚本存储数据值
-       * @returns {Object}
-       */
-      getStorage: function() {
-        return _GM_getValue(this.sotrageKey);
-      },
-      /**
-       * 设置脚本存储
-       * @param {Object} value 存储数据值
-       */
-      setStorage: function(value) {
-        _GM_setValue(this.sotrageKey, value);
-      },
-      /**
-       * 清除脚本存储
-       * @param {Object} value 存储数据值
-       */
-      delStorage: function() {
-        _GM_deleteValue(this.sotrageKey);
       },
       // ===================================================================================== 制品
       /**
@@ -63,14 +36,15 @@
         let $groupId = document.querySelector("#groupId");
         let $artifactId = document.querySelector("#artifactId");
         let $version = document.querySelector("#version");
-        if (_this.getStorage()) {
-          $groupId.value = _this.getStorage().group;
+        if (_this.currentPackage) {
+          $groupId.value = _this.currentPackage.group;
           _this.reactInputEmit($groupId);
-          $artifactId.value = _this.getStorage().artifact;
+          $artifactId.value = _this.currentPackage.artifact;
           _this.reactInputEmit($artifactId);
-          $version.value = _this.getStorage().version;
+          $version.value = _this.currentPackage.version;
           _this.reactInputEmit($version);
         }
+        _this.currentPackage = null;
       },
       // js如何在外部改变react受控组件的状态量？参考：https://github.com/ILovePing/ILovePing.github.io/issues/22
       reactInputEmit: function(element) {
@@ -81,48 +55,6 @@
           tracker.setValue(element);
         }
         element.dispatchEvent(event);
-      },
-      // 监听当前选中的制品
-      checkboxOnClick: function() {
-        let _this = this;
-        document.body.addEventListener("click", (e) => {
-          let $element = e.target;
-          if ($element.classList.contains("next-checkbox-input")) {
-            if ($element.checked) {
-              let $parent = _this.getParent(
-                $element,
-                "next-table-row"
-              );
-              _this.currentPackageUpdate($parent);
-            } else {
-              setTimeout(() => {
-                let $checkboxList = document.querySelectorAll(
-                  ".next-table-row.selected"
-                );
-                if ($checkboxList.length == 0) {
-                  _this.delStorage();
-                  return false;
-                }
-                _this.currentPackageUpdate($checkboxList[0]);
-              }, 200);
-            }
-          }
-        });
-      },
-      // 更新本地存储值
-      currentPackageUpdate: function(element) {
-        let _this = this;
-        if (!element)
-          return false;
-        let $tr = element.querySelectorAll(".next-table-cell-wrapper");
-        let $GA = $tr[1], $ver = $tr[2];
-        let GAStr = $GA.innerText;
-        let data = {
-          group: GAStr.split(":")[0],
-          artifact: GAStr.split(":")[1],
-          version: _this.versionFormat($ver.innerText)
-        };
-        _this.setStorage(data);
       },
       versionFormat: function(version) {
         if (!version)
@@ -139,6 +71,27 @@
           out += "-SNAPSHOT";
         }
         return out;
+      },
+      clickTableRow: function(e) {
+        if (e.button == 1) {
+          let $parent = app.getParent(e.target, "next-table-row");
+          let $cells = $parent.querySelectorAll(".next-table-cell");
+          let $GA = $parent.querySelector(".teamix-title");
+          let $ver = $cells[1].querySelector(".next-table-cell-wrapper");
+          let GAStr = $GA.innerText;
+          app.currentPackage = {
+            group: GAStr.split(":")[0],
+            artifact: GAStr.split(":")[1],
+            version: app.versionFormat($ver.innerText)
+          };
+          document.querySelector("button.upload-btn").click();
+        }
+      },
+      onTableRowClick: function() {
+        document.querySelectorAll(".next-table-row").forEach((e) => {
+          e.removeEventListener("mousedown", this.clickTableRow);
+          e.addEventListener("mousedown", this.clickTableRow);
+        });
       },
       /**
        * 监听指定元素加载完成，执行函数
