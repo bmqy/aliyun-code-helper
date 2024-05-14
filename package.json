@@ -1,7 +1,7 @@
 {
   "name": "aliyun-code-helper",
   "private": true,
-    "version": "1.0.8",
+    "version": "1.1.0",
     "description": "阿里云云效辅助脚本",
     "author": "bmqy",
     "license": "ISC",

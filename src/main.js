@@ -4,59 +4,33 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 
 	// Your code here...
 	const app = {
+		currentPackage: null,
 		init: function () {
-			this.delStorage();
-			this.checkboxOnClick();
+			this.onAddElementEventDoFunction('next-table-row', this.onTableRowClick.bind(this));
 			this.onAddElementEventDoFunction('next-dialog-body', this.pkgUploadFormUpdate.bind(this));
 			this.onAddElementEventDoFunction('next-btn', this.quickMFALogin.bind(this));
 		},
 
-        // ===================================================================================== 方法
-		// 脚本存储数据key
-		sotrageKey: 'BmqyAliyunPackage',
-
-		/**
-		 * 获取脚本存储数据值
-		 * @returns {Object}
-		 */
-		getStorage: function () {
-			return GM_getValue(this.sotrageKey);
-		},
-
-		/**
-		 * 设置脚本存储
-		 * @param {Object} value 存储数据值
-		 */
-		setStorage: function (value) {
-			GM_setValue(this.sotrageKey, value);
-		},
-
-		/**
-		 * 清除脚本存储
-		 * @param {Object} value 存储数据值
-		 */
-		delStorage: function () {
-			GM_deleteValue(this.sotrageKey);
-		},
-
-        // ===================================================================================== 制品
+    // ===================================================================================== 制品
 		/**
 		 * 更新制品上传表单
 		 */
 		pkgUploadFormUpdate: function () {
-            if(location.href.indexOf('https://packages.aliyun.com')==-1) return false;
+			if(location.href.indexOf('https://packages.aliyun.com')==-1) return false;
 			let _this = this;
 			let $groupId = document.querySelector('#groupId');
 			let $artifactId = document.querySelector('#artifactId');
 			let $version = document.querySelector('#version');
-			if (_this.getStorage()) {
-				$groupId.value = _this.getStorage().group;
+
+			if(_this.currentPackage){
+				$groupId.value = _this.currentPackage.group;
 				_this.reactInputEmit($groupId);
-				$artifactId.value = _this.getStorage().artifact;
+				$artifactId.value = _this.currentPackage.artifact;
 				_this.reactInputEmit($artifactId);
-				$version.value = _this.getStorage().version;
+				$version.value = _this.currentPackage.version;
 				_this.reactInputEmit($version);
 			}
+			_this.currentPackage = null;
 		},
 
 		// js如何在外部改变react受控组件的状态量？参考：https://github.com/ILovePing/ILovePing.github.io/issues/22
@@ -72,77 +46,51 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 			element.dispatchEvent(event);
 		},
 
-		// 监听当前选中的制品
-		checkboxOnClick: function () {
-			let _this = this;
-			document.body.addEventListener('click', (e) => {
-				let $element = e.target;
-				if ($element.classList.contains('next-checkbox-input')) {
-					if ($element.checked) {
-						let $parent = _this.getParent(
-							$element,
-							'next-table-row'
-						);
-						_this.currentPackageUpdate($parent);
-					} else {
-						// 取消当前选中则检测列表中第一个选中的行，如果有更新存储值
-						setTimeout(() => {
-							let $checkboxList = document.querySelectorAll(
-								'.next-table-row.selected'
-							);
-							if ($checkboxList.length == 0) {
-								_this.delStorage();
-								return false;
-							}
-
-							_this.currentPackageUpdate($checkboxList[0]);
-						}, 200);
-					}
-				}
-			});
-		},
-
-		// 更新本地存储值
-		currentPackageUpdate: function (element) {
-			let _this = this;
-			if (!element) return false;
-
-			let $tr = element.querySelectorAll('.next-table-cell-wrapper');
-			let $GA = $tr[1],
-				$ver = $tr[2];
-			let GAStr = $GA.innerText;
-			let data = {
-				group: GAStr.split(':')[0],
-				artifact: GAStr.split(':')[1],
-				version: _this.versionFormat($ver.innerText),
-			};
-			_this.setStorage(data);
-		},
-
-        versionFormat: function (version) {
-            if(!version) return version;
+		versionFormat: function (version) {
+			if(!version) return version;
 
 			// 兼容-SNAPSHOT版本
-            let arr = version.split('-');
-            let numberArr = arr[0].split('.');
-            numberArr.forEach((e, i) => {
-                if(i >= (numberArr.length-1)){
-                    numberArr[numberArr.length-1] = ++e;
-                }
-            });
+			let arr = version.split('-');
+			let numberArr = arr[0].split('.');
+			numberArr.forEach((e, i) => {
+				if(i >= (numberArr.length-1)){
+						numberArr[numberArr.length-1] = ++e;
+				}
+			});
 			let out = numberArr.join('.');
 			if(arr[1]){
 				out += '-SNAPSHOT';
 			}
 
-            return out;
-        },
+			return out;
+		},
+
+		clickTableRow: function(e){
+			if(e.button == 1){
+				let $parent = app.getParent(e.target, 'next-table-row');
+				let $cells = $parent.querySelectorAll('.next-table-cell');
+				let $GA = $parent.querySelector('.teamix-title');
+				let $ver = $cells[1].querySelector('.next-table-cell-wrapper');
+				let GAStr = $GA.innerText;
+				app.currentPackage = {
+					group: GAStr.split(':')[0],
+					artifact: GAStr.split(':')[1],
+					version: app.versionFormat($ver.innerText),
+				};
+				document.querySelector('button.upload-btn').click();
+			}
+		},
+		onTableRowClick: function(){
+			document.querySelectorAll('.next-table-row').forEach(e=>{
+				e.removeEventListener('mousedown', this.clickTableRow);
+				e.addEventListener('mousedown', this.clickTableRow)
+			})
+		},
 
 		/**
 		 * 监听指定元素加载完成，执行函数
 		 */
 		onAddElementEventDoFunction: function (elementClassName, func) {
-			let _this = this;
 			let mos = new MutationObserver(function (mutations, observer) {
 				for (const mutation in mutations) {
 					if (Object.hasOwnProperty.call(mutations, mutation)) {
@@ -187,21 +135,21 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 			return null;
 		},
 
-        // ===================================================================================== 登录
-        // MFA快速登录
-        quickMFALogin: function(){
-            if(location.href.indexOf('signin.aliyun.com')==-1) return false;
+		// ===================================================================================== 登录
+		// MFA快速登录
+		quickMFALogin: function(){
+			if(location.href.indexOf('signin.aliyun.com')==-1) return false;
 
-            let $btnSubmit = document.querySelector('.next-btn[type=submit]');
-            if($btnSubmit.innerHTML.indexOf('提交验证')==-1) return false;
+			let $btnSubmit = document.querySelector('.next-btn[type=submit]');
+			if($btnSubmit.innerHTML.indexOf('提交验证')==-1) return false;
 
-            let $nextMessageError = document.querySelector('.next-message-error');
-            let $nextLoadingTip = document.querySelector('.next-loading-tip');
+			let $nextMessageError = document.querySelector('.next-message-error');
+			let $nextLoadingTip = document.querySelector('.next-loading-tip');
 
-            if(!$btnSubmit.hasAttribute('disabled') && !$nextMessageError && !$nextLoadingTip){
-                $btnSubmit.click();
-            }
-        }
+			if(!$btnSubmit.hasAttribute('disabled') && !$nextMessageError && !$nextLoadingTip){
+					$btnSubmit.click();
+			}
+		}
 	};
 	app.init();
 })();
