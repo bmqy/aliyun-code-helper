@@ -1,4 +1,3 @@
-import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 (function () {
 	'use strict';
 
@@ -141,6 +140,10 @@ import {GM_getValue,GM_setValue,GM_deleteValue} from '$'
 			if(location.href.indexOf('signin.aliyun.com')==-1) return false;
 
 			let $btnSubmit = document.querySelector('.next-btn[type=submit]');
+			let h3 = document.querySelector('h3');
+			if(h3.innerText.indexOf('MFA')>-1){
+				document.querySelector('input').autocomplete = 'one-time-code';
+			}
 			if($btnSubmit.innerHTML.indexOf('提交验证')==-1) return false;
 
 			let $nextMessageError = document.querySelector('.next-message-error');
