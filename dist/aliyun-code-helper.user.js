@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         阿里云云效增强
 // @namespace    http://bmqy.net/
-// @version      1.1.0
+// @version      1.1.1
 // @author       bmqy
 // @description  阿里云云效辅助脚本
 // @license      ISC
@@ -9,9 +9,6 @@
 // @match        https://packages.aliyun.com/*
 // @match        https://signin.aliyun.com/*/login*
 // @match        https://signin.aliyun.com/login*
-// @grant        GM_deleteValue
-// @grant        GM_getValue
-// @grant        GM_setValue
 // ==/UserScript==
 
 (function () {
@@ -139,6 +136,10 @@
         if (location.href.indexOf("signin.aliyun.com") == -1)
           return false;
         let $btnSubmit = document.querySelector(".next-btn[type=submit]");
+        let h3 = document.querySelector("h3");
+        if (h3.innerText.indexOf("MFA") > -1) {
+          document.querySelector("input").autocomplete = "one-time-code";
+        }
         if ($btnSubmit.innerHTML.indexOf("提交验证") == -1)
           return false;
         let $nextMessageError = document.querySelector(".next-message-error");
